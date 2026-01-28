@@ -58,73 +58,69 @@ const QuestionEditor = ({
 
   return (
     <div 
-      className={`bg-white border rounded-lg p-6 mb-4 transition-all ${
-        isSelected ? 'border-blue-500 shadow-md' : 'border-gray-200 hover:border-gray-300'
+      className={`group relative bg-white rounded-lg p-6 mb-4 transition-all shadow-sm ${
+        isSelected ? 'border-l-8 border-l-primary-500 ring-1 ring-gray-200' : 'border border-gray-200 hover:border-gray-300'
       }`}
       onClick={onSelect}
     >
-      {/* Question Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <button className="text-gray-400 hover:text-gray-600 cursor-grab">
-            <GripVertical className="w-5 h-5" />
-          </button>
-          
-          {IconComponent && (
-            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-              <IconComponent className="w-4 h-4 text-blue-600" />
+      {/* Drag Handle (Visible on Hover / Selected) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-3 hidden group-hover:flex cursor-grab items-center justify-center rounded-lg bg-gray-50 p-1 text-gray-400 shadow-sm hover:text-gray-600">
+        <GripVertical className="h-4 w-4" />
+      </div>
+
+      {/* Row 1: Title and Type Selector */}
+      <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-start">
+        {/* Title Input */}
+        <div className="flex-1 bg-gray-50 p-4 rounded-t-md border-b border-gray-300 focus-within:border-primary-500 focus-within:bg-gray-100 transition-colors">
+          <input
+            type="text"
+            value={localQuestion.title}
+            onChange={(e) => handleUpdate('title', e.target.value)}
+            placeholder="Question"
+            className="w-full bg-transparent text-base font-medium text-gray-900 placeholder-gray-500 focus:outline-none"
+          />
+        </div>
+
+        {/* Type Selector Dropdown */}
+        <div className="w-full md:w-64 flex-shrink-0">
+          <div className="relative">
+            <select
+              value={localQuestion.type}
+              onChange={(e) => handleUpdate('type', e.target.value)}
+              className="w-full appearance-none rounded border border-gray-200 bg-white py-3 pl-10 pr-8 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
+              {Object.values(QUESTION_TYPES).map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+            {/* Current Icon Overlay */}
+            <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+              {(() => {
+                const Icon = QUESTION_TYPES[localQuestion.type]?.icon;
+                return Icon ? <Icon className="h-5 w-5" /> : null;
+              })()}
             </div>
-          )}
-          
-          <span className="text-sm font-medium text-gray-600">
-            {questionType?.name || 'Unknown'}
-          </span>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDuplicate();
-            }}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-          >
-            <Copy className="w-4 h-4" />
-          </button>
-          
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+              <ChevronDown className="h-4 w-4" />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Question Title */}
-      <div className="mb-4">
-        <input
-          type="text"
-          value={localQuestion.title}
-          onChange={(e) => handleUpdate('title', e.target.value)}
-          placeholder="Enter your question"
-          className="w-full text-lg font-medium border-none outline-none focus:ring-0 p-0 placeholder-gray-400"
-        />
-      </div>
-
-      {/* Question Description */}
-      <div className="mb-4">
-        <textarea
-          value={localQuestion.description || ''}
-          onChange={(e) => handleUpdate('description', e.target.value)}
-          placeholder="Add a description (optional)"
-          rows={2}
-          className="w-full text-sm text-gray-600 border-none outline-none focus:ring-0 p-0 placeholder-gray-400 resize-none"
-        />
-      </div>
+      {/* Description (Optional) */}
+      {localQuestion.description !== undefined && (
+        <div className="mb-4 px-4">
+           <input
+            type="text"
+            value={localQuestion.description || ''}
+            onChange={(e) => handleUpdate('description', e.target.value)}
+            placeholder="Description"
+            className="w-full border-b border-gray-200 py-1 text-sm text-gray-600 placeholder-gray-400 focus:border-primary-500 focus:outline-none"
+          />
+        </div>
+      )}
 
       {/* Question Options */}
       {showOptions && (
